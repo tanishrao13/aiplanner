@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { path: '/dashboard', label: 'Dashboard', icon: '📊' },
   { path: '/chat', label: 'AI Tutor', icon: '💬' },
   { path: '/quiz', label: 'Quiz', icon: '🧠' },
+  { path: '/coding', label: 'Coding', icon: '💻' },
   { path: '/plan', label: 'Study Plan', icon: '📅' },
 ];
 

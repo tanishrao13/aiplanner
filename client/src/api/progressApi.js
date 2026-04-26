@@ -1,7 +1,7 @@
 import api from './axios.js';
 
-export const getProgress = async (userId) => {
-  const res = await api.get(`/progress/${userId}`);
+export const getProgress = async (userId, type = 'all') => {
+  const res = await api.get(`/progress/${userId}?type=${type}`);
   return res.data;
 };
 

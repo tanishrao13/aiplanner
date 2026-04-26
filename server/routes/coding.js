@@ -49,7 +49,8 @@ router.post('/generate', requireAuth, async (req, res) => {
 
     const prompt = `Generate a programming problem about ${topic} in Data Structures and Algorithms.
 Difficulty level: ${diff}/5 (1=beginner, 5=expert).
-Make sure to provide working starter code templates that are not empty, but contain the function signature and a return placeholder.
+
+CRITICAL: For the starterCode, you MUST provide ONLY the function signature and a comment saying "Your code here". DO NOT PROVIDE THE ACTUAL SOLUTION OR IMPLEMENTATION in the starterCode! The student needs to solve it themselves.
 
 ${contextStr ? `Use this context for reference:\n${contextStr}\n\n` : ''}
 
@@ -206,7 +207,7 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks).
     });
   } catch (error) {
     console.error('Coding submission error:', error);
-    res.status(500).json({ error: 'Failed to evaluate code submission' });
+    res.status(500).json({ error: error.message || 'Failed to evaluate code submission' });
   }
 });
 

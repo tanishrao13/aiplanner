@@ -11,15 +11,17 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [progress, setProgress] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [filterType, setFilterType] = useState('all'); // all, quiz, coding
 
   useEffect(() => {
     if (user?.userId) {
-      getProgress(user.userId)
+      setLoading(true);
+      getProgress(user.userId, filterType)
         .then(data => setProgress(data))
         .catch(console.error)
         .finally(() => setLoading(false));
     }
-  }, [user]);
+  }, [user, filterType]);
 
   if (loading) {
     return (
@@ -42,13 +44,39 @@ export default function Dashboard() {
     <div className="page-enter" style={{ marginTop: '64px', padding: '2rem' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '1.75rem', fontWeight: 800 }}>
-            Welcome back, <span className="gradient-text">{user?.name}</span> 👋
-          </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.3rem' }}>
-            Here's your DSA progress overview
-          </p>
+        <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <h1 style={{ fontSize: '1.75rem', fontWeight: 800 }}>
+              Welcome back, <span className="gradient-text">{user?.name}</span> 👋
+            </h1>
+            <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginTop: '0.3rem' }}>
+              Here's your DSA progress overview
+            </p>
+          </div>
+          
+          <div style={{ display: 'flex', background: 'var(--bg-secondary)', padding: '0.25rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
+            {['all', 'quiz', 'coding'].map(t => (
+              <button
+                key={t}
+                onClick={() => setFilterType(t)}
+                style={{
+                  padding: '0.5rem 1rem',
+                  border: 'none',
+                  background: filterType === t ? 'var(--bg-card)' : 'transparent',
+                  color: filterType === t ? 'var(--accent-light)' : 'var(--text-secondary)',
+                  borderRadius: '6px',
+                  fontSize: '0.85rem',
+                  fontWeight: filterType === t ? 700 : 500,
+                  cursor: 'pointer',
+                  textTransform: 'capitalize',
+                  boxShadow: filterType === t ? '0 2px 8px rgba(0,0,0,0.2)' : 'none',
+                  transition: 'all 0.2s ease'
+                }}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Stats Cards */}
