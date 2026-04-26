@@ -10,6 +10,7 @@ import uploadRoutes from './routes/upload.js';
 import quizRoutes from './routes/quiz.js';
 import planRoutes from './routes/plan.js';
 import progressRoutes from './routes/progress.js';
+import codingRoutes from './routes/coding.js';
 
 // Import Middleware
 import { requireAuth } from './middleware/authMiddleware.js';
@@ -27,6 +28,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/quiz', quizRoutes);
+app.use('/api/coding', codingRoutes);
 app.use('/api/plan', planRoutes);
 app.use('/api/progress', progressRoutes);
 

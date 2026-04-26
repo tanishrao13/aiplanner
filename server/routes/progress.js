@@ -15,16 +15,19 @@ const DSA_TOPICS = [
 router.get('/:userId', requireAuth, async (req, res) => {
   try {
     const userId = req.params.userId;
+    const type = req.query.type; // 'all', 'quiz', or 'coding'
 
     // Overall stats
-    const overall = await getOverallStats(userId);
+    const overall = await getOverallStats(userId, type);
 
     // Topic breakdown
     const topicBreakdown = [];
     const heatmapData = {};
 
     for (const topic of DSA_TOPICS) {
-      const attempts = await Attempt.find({ userId, topic }).sort({ createdAt: -1 });
+      const query = { userId, topic };
+      if (type && type !== 'all') query.type = type;
+      const attempts = await Attempt.find(query).sort({ createdAt: -1 });
       const count = attempts.length;
 
       if (count === 0) {
@@ -65,20 +68,21 @@ router.get('/:userId', requireAuth, async (req, res) => {
     }
 
     // Weak topics
-    const weakTopicsData = await getWeakTopics(userId);
+    const weakTopicsData = await getWeakTopics(userId, type);
     const weakTopics = weakTopicsData.map(w => w.topic);
 
     // Recent activity (last 7 days)
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const recentActivity = await Attempt.find({
-      userId,
-      createdAt: { $gte: sevenDaysAgo }
-    }).sort({ createdAt: -1 }).limit(20);
+    const queryActivity = { userId, createdAt: { $gte: sevenDaysAgo } };
+    if (type && type !== 'all') queryActivity.type = type;
+    const recentActivity = await Attempt.find(queryActivity).sort({ createdAt: -1 }).limit(20);
 
     // Estimated mastery date
     // Calculate based on current rate: if user averages X mastery gain per day
-    const allAttempts = await Attempt.find({ userId }).sort({ createdAt: 1 });
+    const queryAll = { userId };
+    if (type && type !== 'all') queryAll.type = type;
+    const allAttempts = await Attempt.find(queryAll).sort({ createdAt: 1 });
     let estimatedMasteryDate = null;
 
     if (allAttempts.length >= 5) {

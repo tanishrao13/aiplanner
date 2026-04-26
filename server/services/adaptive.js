@@ -12,8 +12,10 @@ export const calculateWeightedScore = ({ accuracy, timeTaken, expectedTime, stre
 /**
  * Get current difficulty and stats for a user+topic.
  */
-export const getTopicStats = async (userId, topic) => {
-  const attempts = await Attempt.find({ userId, topic }).sort({ createdAt: -1 });
+export const getTopicStats = async (userId, topic, type) => {
+  const query = { userId, topic };
+  if (type && type !== 'all') query.type = type;
+  const attempts = await Attempt.find(query).sort({ createdAt: -1 });
   const count = attempts.length;
   const avgScore = count > 0
     ? attempts.reduce((sum, a) => sum + a.accuracy, 0) / count
@@ -28,8 +30,10 @@ export const getTopicStats = async (userId, topic) => {
 /**
  * Calculate streak for a user+topic (consecutive correct answers from most recent).
  */
-export const getStreak = async (userId, topic) => {
-  const attempts = await Attempt.find({ userId, topic }).sort({ createdAt: -1 });
+export const getStreak = async (userId, topic, type) => {
+  const query = { userId, topic };
+  if (type && type !== 'all') query.type = type;
+  const attempts = await Attempt.find(query).sort({ createdAt: -1 });
   let streak = 0;
   for (const a of attempts) {
     if (a.correct) streak++;
@@ -42,8 +46,8 @@ export const getStreak = async (userId, topic) => {
  * Update difficulty based on the latest attempt result.
  * Returns the new difficulty level.
  */
-export const updateDifficulty = async (userId, topic, currentDifficulty, weightedScore) => {
-  const stats = await getTopicStats(userId, topic);
+export const updateDifficulty = async (userId, topic, currentDifficulty, weightedScore, type) => {
+  const stats = await getTopicStats(userId, topic, type);
   let newDifficulty = currentDifficulty;
 
   if (weightedScore > 0.8 && stats.attempts >= 3) {
@@ -59,7 +63,7 @@ export const updateDifficulty = async (userId, topic, currentDifficulty, weighte
  * Get weak topics for a user.
  * A topic is weak if avgScore < 0.6 after >= 5 attempts.
  */
-export const getWeakTopics = async (userId) => {
+export const getWeakTopics = async (userId, type) => {
   const DSA_TOPICS = [
     'Arrays', 'Strings', 'Hashing', 'Two Pointers', 'Sliding Window',
     'Stack', 'Queue', 'Linked Lists', 'Trees', 'Graphs',
@@ -69,7 +73,7 @@ export const getWeakTopics = async (userId) => {
   const weakTopics = [];
 
   for (const topic of DSA_TOPICS) {
-    const stats = await getTopicStats(userId, topic);
+    const stats = await getTopicStats(userId, topic, type);
     if (stats.attempts >= 5 && stats.avgScore < 0.6) {
       weakTopics.push({ topic, avgScore: stats.avgScore, attempts: stats.attempts });
     }
@@ -83,8 +87,10 @@ export const getWeakTopics = async (userId) => {
 /**
  * Get overall stats for a user across all topics.
  */
-export const getOverallStats = async (userId) => {
-  const attempts = await Attempt.find({ userId }).sort({ createdAt: -1 });
+export const getOverallStats = async (userId, type) => {
+  const query = { userId };
+  if (type && type !== 'all') query.type = type;
+  const attempts = await Attempt.find(query).sort({ createdAt: -1 });
   const totalAttempts = attempts.length;
   
   if (totalAttempts === 0) {

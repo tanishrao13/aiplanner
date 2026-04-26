@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const attemptSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   questionId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Concept' },
+  type: { type: String, enum: ['quiz', 'coding'], default: 'quiz' },
   topic: { type: String, required: true },
   difficulty: { type: Number, required: true, min: 1, max: 5 },
   accuracy: { type: Number, required: true, min: 0, max: 1 },
