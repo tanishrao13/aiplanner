@@ -18,7 +18,8 @@ import { requireAuth } from './middleware/authMiddleware.js';
 const app = express();
 
 // Middleware
-app.use(cors({ origin: 'http://localhost:5173' }));
+const allowedOrigin = process.env.CLIENT_URL || 'http://localhost:5173';
+app.use(cors({ origin: allowedOrigin }));
 app.use(express.json());
 
 // Public Routes
