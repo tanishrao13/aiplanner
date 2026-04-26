@@ -41,15 +41,15 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Mongoose Connection
-mongoose.connect(config.mongodbUri)
-  .then(() => {
-    console.log('Connected to MongoDB');
-    app.listen(config.port, () => {
-      console.log(`StudyOS server running on port ${config.port}`);
+// Start Server
+app.listen(config.port, () => {
+  console.log(`StudyOS server running on port ${config.port}`);
+  
+  // Mongoose Connection after server starts
+  mongoose.connect(config.mongodbUri)
+    .then(() => console.log('Connected to MongoDB'))
+    .catch((err) => {
+      console.error('MongoDB connection error:', err);
+      // We don't exit(1) here so the server stays up and we can see health/errors
     });
-  })
-  .catch((err) => {
-    console.error('MongoDB connection error:', err);
-    process.exit(1);
-  });
+});
