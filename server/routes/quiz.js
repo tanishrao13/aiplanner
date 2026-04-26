@@ -27,12 +27,17 @@ router.post('/generate', requireAuth, async (req, res) => {
 
     const diff = difficulty || 1;
 
-    // 1. Generate embedding for context retrieval
-    const queryEmbedding = await generateEmbedding(topic, 'query');
-
-    // 2. Query ChromaDB
-    const results = await queryChunks(queryEmbedding, 2);
-    const contextStr = results.documents[0].join('\n---\n');
+    // 1. Generate embedding for context retrieval & Query ChromaDB
+    let contextStr = '';
+    try {
+      const queryEmbedding = await generateEmbedding(topic, 'query');
+      const results = await queryChunks(queryEmbedding, 2);
+      if (results.documents && results.documents[0]) {
+        contextStr = results.documents[0].join('\n---\n');
+      }
+    } catch (err) {
+      console.warn('Quiz context retrieval failed, proceeding with general generation:', err.message);
+    }
 
     const prompt = `Generate a multiple choice quiz question about ${topic} in Data Structures and Algorithms.
 Difficulty level: ${diff}/5 (1=beginner, 5=expert)

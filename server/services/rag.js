@@ -38,12 +38,17 @@ export const generateEmbedding = async (text, inputType = 'query') => {
 
 export const generateStreamingResponse = async (query, res) => {
   try {
-    // 1. Generate query embedding
-    const queryEmbedding = await generateEmbedding(query, 'query');
-
-    // 2. Query ChromaDB for context
-    const results = await queryChunks(queryEmbedding, 3);
-    const context = results.documents[0].join('\n---\n');
+    // 1. Generate query embedding & Query ChromaDB for context
+    let context = '';
+    try {
+      const queryEmbedding = await generateEmbedding(query, 'query');
+      const results = await queryChunks(queryEmbedding, 3);
+      if (results.documents && results.documents[0]) {
+        context = results.documents[0].join('\n---\n');
+      }
+    } catch (err) {
+      console.warn('RAG Context retrieval failed, proceeding with base LLM:', err.message);
+    }
 
     const messages = [
       { 
